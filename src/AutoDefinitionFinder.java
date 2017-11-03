@@ -106,14 +106,13 @@ public class AutoDefinitionFinder {
 
             doc = Jsoup.connect("http://www.dictionary.com/browse/" + term + "?s=t").get();
 
-        } catch (UnknownHostException e) {
-
-            Log("FATAL: Unknown host exception. Check network status!");
-
-            System.exit(0);
-
+        } catch (Exception e) {
+            
+            return "No definition found. Invalid input or network.";
+            
         }
-
+        
+        
         String text = doc.select("div.def-content").text();
 
         return text.substring(0, text.indexOf(". "));
