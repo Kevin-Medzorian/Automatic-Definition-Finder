@@ -19,11 +19,11 @@ import org.jsoup.nodes.Document;
  */
 public class AutoDefinitionFinder {
 
-    static String termPath = AutoDefinitionFinder.class.getProtectionDomain().getCodeSource().getLocation().toString().substring(6) + "/config";
+    public final static String TERM_PATH = new File(AutoDefinitionFinder.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParentFile().getPath() + "/config";
 
-    static File termFile = new File(termPath + "/terms.txt"),
-            outputFile = new File(termPath + "/output.txt"),
-            logFile = new File(termPath + "/log.txt");
+    static File termFile = new File(TERM_PATH + "/terms.txt"),
+            outputFile = new File(TERM_PATH + "/output.txt"),
+            logFile = new File(TERM_PATH + "/log.txt");
 
     static ArrayList<String> LOG = new ArrayList();
 
@@ -140,7 +140,7 @@ public class AutoDefinitionFinder {
     }
 
     public static void CreateTermFile() throws IOException {
-        new File(termPath).mkdirs();
+        new File(TERM_PATH).mkdirs();
 
         termFile.createNewFile();
 

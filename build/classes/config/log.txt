@@ -1,6 +1,0 @@
-2017-11-03 12:41:01.242	Log file created. 
-2017-11-03 12:41:01.234	Creating term file. Please fill in terms and re-run program.
-2017-11-03 12:41:01.255	Closing...
-2017-11-03 12:45:33.226	Process started.
-2017-11-03 12:45:33.237	FATAL: Term format error with: "Single-Worded-Term"
-2017-11-03 12:45:33.248	Closing...
