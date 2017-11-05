@@ -3,7 +3,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -35,7 +34,8 @@ public class AutoDefinitionFinder {
             }
         });
         
-
+            new GUI();
+            
         if (termFile.exists()) {
 
             Log("Process started.");
@@ -52,7 +52,6 @@ public class AutoDefinitionFinder {
             }
 
             RewriteTerms(output);
-
             Log("Process completed.");
         } else {
             Log("Creating term file. Please fill in terms and re-run program.");
@@ -78,7 +77,7 @@ public class AutoDefinitionFinder {
             }
 
             Files.write(Paths.get(logFile.toURI()), (getCurrentTimeStamp() + "\tClosing...").getBytes(), StandardOpenOption.APPEND);
-        } catch (Exception e) {
+        } catch (IOException e) {
         }
     }
 
@@ -106,7 +105,7 @@ public class AutoDefinitionFinder {
 
             doc = Jsoup.connect("http://www.dictionary.com/browse/" + term + "?s=t").get();
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             
             return "No definition found. Invalid input or network.";
             
