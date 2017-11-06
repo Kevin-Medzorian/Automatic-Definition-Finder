@@ -58,10 +58,12 @@ public class GUI extends JFrame {
 
         search.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-
                 defs.setText("Searching for definitions...");
-                defs.update(defs.getGraphics());
-                
+
+                if (tp.getSelectedIndex() == 1) {
+                    defs.update(defs.getGraphics());
+                }
+
                 for (String term : terms.getText().split("\n")) {
                     if (term.replaceAll("[^A-Za-z]", "").trim().length() == term.trim().length() && term.trim().length() > 1) {
                         try {
@@ -73,7 +75,10 @@ public class GUI extends JFrame {
 
                             defs.append(line);
 
-                            defs.update(defs.getGraphics());
+                            if (tp.getSelectedIndex() == 1) {
+                                defs.update(defs.getGraphics());
+                            }
+
                         } catch (IOException ex) {
                             System.out.println(ex.toString());
                         }
@@ -158,8 +163,6 @@ public class GUI extends JFrame {
 
         defs.setText(text);
 
-        terms.setVisible(false);
-        terms.setVisible(true);
     }
 
     public void TermTab() {
