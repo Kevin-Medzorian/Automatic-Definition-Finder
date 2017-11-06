@@ -16,7 +16,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.text.AbstractDocument;
@@ -61,7 +60,7 @@ public class GUI extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 defs.setText("Searching for definitions...");
                 
-                defs.update(defs.getGraphics());
+                update(defs.getParent().getGraphics());
 
                 for (String term : terms.getText().split("\n")) {
                     if (term.replaceAll("[^A-Za-z]", "").trim().length() == term.trim().length() && term.trim().length() > 1) {
@@ -74,7 +73,8 @@ public class GUI extends JFrame {
 
                             defs.setText(defs.getText() + line);
                             
-                            defs.update(defs.getGraphics());
+                            
+                            update(defs.getParent().getGraphics());
 
                         } catch (IOException ex) {
                             System.out.println(ex.toString());
@@ -104,8 +104,8 @@ public class GUI extends JFrame {
         add(tp, BorderLayout.CENTER);
         add(bottomRow, BorderLayout.SOUTH);
 
-        InitTerms();
-        InitDefs();
+        TermTab();
+        DefTab();
 
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/images/iconTransparent.png")));
 
@@ -161,32 +161,32 @@ public class GUI extends JFrame {
         defs.setText(text);
     }
 
-    public void InitTerms() {
+    public void TermTab() {
         JPanel termPanel = new JPanel();
         termPanel.setLayout(new BorderLayout());
 
         tp.addTab("Term List ", termPanel);
 
         terms = new JTextArea(20, 90);
-        JScrollPane sp = new JScrollPane(terms);
+        JScrollPane spt = new JScrollPane(terms);
 
         JLabel infoLbl = new JLabel("Enter one-word English terms below, separated by a single line.");
 
         ((AbstractDocument) terms.getDocument()).setDocumentFilter(new TermAreaFilter());
-        sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        spt.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        spt.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
         terms.setVisible(true);
 
         termPanel.add(infoLbl, BorderLayout.NORTH);
-        termPanel.add(sp, BorderLayout.CENTER);
+        termPanel.add(spt, BorderLayout.CENTER);
 
         pack();
     }
 
-    public void InitDefs() {
+    public void DefTab() {
         JPanel defPanel = new JPanel(new BorderLayout());
-
+        tp.addTab("Terms with Definitions", defPanel);
         JPanel topRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
         JLabel sepText = new JLabel("Separating text: ");
@@ -209,8 +209,6 @@ public class GUI extends JFrame {
 
         sep.setColumns(3);
 
-        tp.addTab("Terms with Definitions", defPanel);
-
         defs = new JTextArea(20, 90);
         JScrollPane sp = new JScrollPane(defs);
         defs.setEditable(false);
@@ -227,6 +225,7 @@ public class GUI extends JFrame {
         defPanel.add(sp, BorderLayout.CENTER);
 
         pack();
+
     }
 
     //Restricts Text Area to only Alphabetic characters.
