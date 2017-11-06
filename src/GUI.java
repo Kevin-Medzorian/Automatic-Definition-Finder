@@ -58,10 +58,10 @@ public class GUI extends JFrame {
 
         search.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                defs.setText("Searching for definitions...");
-                
-                update(defs.getParent().getGraphics());
 
+                defs.setText("Searching for definitions...");
+                defs.update(defs.getGraphics());
+                
                 for (String term : terms.getText().split("\n")) {
                     if (term.replaceAll("[^A-Za-z]", "").trim().length() == term.trim().length() && term.trim().length() > 1) {
                         try {
@@ -71,17 +71,15 @@ public class GUI extends JFrame {
                                 defs.setText("");
                             }
 
-                            defs.setText(defs.getText() + line);
-                            
-                            
-                            update(defs.getParent().getGraphics());
+                            defs.append(line);
 
+                            defs.update(defs.getGraphics());
                         } catch (IOException ex) {
                             System.out.println(ex.toString());
                         }
+
                     } else {
-                        defs.setText(defs.getText() + term + sep.getText() + " Invalid term text format. Make sure it is only Alphabetic and one-word." + "\n");
-                        repaint();
+                        defs.append(term + sep.getText() + " Invalid term text format. Make sure it is only Alphabetic and one-word." + "\n");
                     }
                 }
 
@@ -159,6 +157,9 @@ public class GUI extends JFrame {
         }
 
         defs.setText(text);
+
+        terms.setVisible(false);
+        terms.setVisible(true);
     }
 
     public void TermTab() {
