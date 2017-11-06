@@ -1,7 +1,5 @@
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -9,55 +7,31 @@ import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Scanner;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Node;
 
 /**
  * @author Kevin
  */
 public class AutoDefinitionFinder {
 
-    public final static String TERM_PATH = new File(AutoDefinitionFinder.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParentFile().getPath() + "/config";
+    public final static String TERM_PATH = new File(AutoDefinitionFinder.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParentFile().getPath();
 
-    static File termFile = new File(TERM_PATH + "/terms.txt"),
-            outputFile = new File(TERM_PATH + "/output.txt"),
-            logFile = new File(TERM_PATH + "/log.txt");
+    static File logFile = new File(TERM_PATH + "/log.txt");
 
     static ArrayList<String> LOG = new ArrayList();
 
     public static void main(String[] args) throws IOException {
-
+        Log("Started");
+        
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
                 WriteLogFile();
             }
         });
-        
-            new GUI();
-            
-        if (termFile.exists()) {
 
-            Log("Process started.");
-
-            String[] terms = ReadTerms();
-
-            String[] output = new String[terms.length];
-            
-
-            for (int i = 0; i < terms.length; i++) {
-                output[i] = terms[i]
-                        + ": "
-                        + GetDef(terms[i].toLowerCase());
-            }
-
-            RewriteTerms(output);
-            Log("Process completed.");
-        } else {
-            Log("Creating term file. Please fill in terms and re-run program.");
-            CreateTermFile();
-        }
-
+        new GUI();
     }
 
     public static void WriteLogFile() {
@@ -76,83 +50,62 @@ public class AutoDefinitionFinder {
                 Files.write(Paths.get(logFile.toURI()), line.getBytes(), StandardOpenOption.APPEND);
             }
 
-            Files.write(Paths.get(logFile.toURI()), (getCurrentTimeStamp() + "\tClosing...").getBytes(), StandardOpenOption.APPEND);
+            Files.write(Paths.get(logFile.toURI()), (getCurrentTimeStamp() + "\tExiting...").getBytes(), StandardOpenOption.APPEND);
         } catch (IOException e) {
         }
     }
 
-    public static void RewriteTerms(String[] lines) throws IOException {
-        BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));
 
-        if (!outputFile.exists()) {
-            outputFile.createNewFile();
-        }
-
-        for (String line : lines) {
-            bw.write(line);
-            bw.newLine();
-        }
-
-        Log("Terms rewritten. Closing writer...");
-
-        bw.close();
-    }
-
-    public static String GetDef(String term) throws IOException {
+    public static String GetDef(String term, String site) throws IOException {
         Document doc = null;
+        String url = "",
+                element = "";
+
+        switch (site) {
+            case "Dictionary.com":
+                url = "http://www.dictionary.com/browse/";
+                element = "div.def-content";
+                break;
+            case "Merriam-Webster":
+                url = "http://www.merriam-webster.com/dictionary/";
+                element = "span.dt";
+                break;
+            case "Google":
+                url = "http://www.google.com/search?q=define+";
+                element = "div._Jig";
+                break;
+        }
 
         try {
 
-            doc = Jsoup.connect("http://www.dictionary.com/browse/" + term + "?s=t").get();
+            doc = Jsoup.connect(url + term).get();
 
         } catch (IOException e) {
-            
+
             return "No definition found. Invalid input or network.";
-            
+
         }
-        
-        
-        String text = doc.select("div.def-content").text();
 
-        return text.substring(0, text.indexOf(". "));
-    }
+        String text = doc.select(element).text().trim();
 
-    public static String[] ReadTerms() throws IOException {
-        Scanner scan = new Scanner(termFile);
+        if (site.equals("Merriam-Webster")) {
+            String line = "-1";
 
-        ArrayList<String> lines = new ArrayList();
-
-        for (String s = "-1"; scan.hasNextLine() && s.trim().length() > 0;) {
-            lines.add(s = scan.nextLine());
-
-            if (s.replaceAll("[A-Za-z]", "").length() > 0) {
-                Log("FATAL: Term format error with: \"" + s + "\"");
-                System.exit(0);
+            for (Node c : doc.selectFirst(element).childNodes()) {
+                if (c.toString().replaceAll("[<>/\"_=]", "").length() == c.toString().length() && c.toString().replaceAll("[^A-Za-z]", "").trim().length() > 5) {
+                    line = c.toString().trim();
+                    break;
+                }
             }
 
+            text = line;
         }
 
-        Log("Terms read successfully.");
+        if (text.contains(".")) {
+            return text.substring(0, text.indexOf(".") + 1);
+        }
 
-        return lines.toArray(new String[lines.size()]);
-    }
-
-    public static void CreateTermFile() throws IOException {
-        new File(TERM_PATH).mkdirs();
-
-        termFile.createNewFile();
-
-        BufferedWriter bw = new BufferedWriter(new FileWriter(termFile));
-
-        bw.write("Single-Worded-Term");
-        bw.newLine();
-        bw.write("Single-Worded-Term-2");
-        bw.newLine();
-        bw.write("etc...");
-
-        bw.close();
-        bw = null;
-
+        return text + ".";
     }
 
     public static void Log(String log) {
@@ -164,6 +117,9 @@ public class AutoDefinitionFinder {
     }
 
     public static String getCurrentTimeStamp() {
+        
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS").format(new Date());
+        
     }
+    
 }
