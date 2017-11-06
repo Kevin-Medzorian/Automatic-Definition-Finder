@@ -1,3 +1,4 @@
+
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
@@ -15,6 +16,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.text.AbstractDocument;
@@ -42,7 +44,7 @@ public class GUI extends JFrame {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
         } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
         }
-        
+
         setTitle("Automatic Definition Finder");
         setResizable(false);
         setSize(500, 300);
@@ -57,16 +59,23 @@ public class GUI extends JFrame {
 
         search.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                defs.setText("");
+                defs.setText("Searching for definitions...");
+                
+                defs.update(defs.getGraphics());
 
                 for (String term : terms.getText().split("\n")) {
                     if (term.replaceAll("[^A-Za-z]", "").trim().length() == term.trim().length() && term.trim().length() > 1) {
                         try {
                             String line = term + sep.getText() + " " + AutoDefinitionFinder.GetDef(term, (String) defType.getSelectedItem()) + "\n";
 
-                            defs.setText(defs.getText() + line);
+                            if (defs.getText().equals("Searching for definitions...")) {
+                                defs.setText("");
+                            }
 
-                            repaint();
+                            defs.setText(defs.getText() + line);
+                            
+                            defs.update(defs.getGraphics());
+
                         } catch (IOException ex) {
                             System.out.println(ex.toString());
                         }
@@ -97,10 +106,9 @@ public class GUI extends JFrame {
 
         InitTerms();
         InitDefs();
-        
-        
+
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/images/iconTransparent.png")));
-        
+
         setVisible(true);
     }
 

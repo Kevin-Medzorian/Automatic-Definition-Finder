@@ -105,7 +105,7 @@ public class AutoDefinitionFinder {
             return text.substring(0, text.indexOf(".") + 1);
         }
 
-        return text + ".";
+        return text;
     }
 
     public static void Log(String log) {
