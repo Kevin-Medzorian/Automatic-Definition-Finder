@@ -46,7 +46,6 @@ public class GUI extends JFrame {
 
         setTitle("Automatic Definition Finder");
         setResizable(false);
-        setSize(500, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         setLayout(new BorderLayout());
