@@ -21,14 +21,19 @@ public class ThreadedConnection implements Runnable {
 
     @Override
     public void run() {
+        gui.loading.setVisible(true);
+        
         for (String term : terms) {
             if (term.replaceAll("[^A-Za-z]", "").trim().length() == term.trim().length() && term.trim().length() > 1) {
                 GetDef(term);
             }
         }
+        
         gui.definitionList = gui.defs.getText();
 
         gui.CheckSettings();
+        
+        gui.loading.setVisible(false);
     }
 
     public void GetDef(String term) {
@@ -71,11 +76,11 @@ public class ThreadedConnection implements Runnable {
 
         //Take all definitions available up to 3 definitions.
         for (int i = 0; i < Math.min(defAmount, e.size()); i++) {
-            text += e.get(i).text();
+            text += (i+1) + ") " + (!site.equals("Merriam-Webster") ? e.get(i).text() : e.get(i).text().substring(1)) + ". ";
         }
-
-        text = text.replaceAll("\\.", ". ").replaceAll(":", ";").replaceAll("  ", " ");
-
+        
+        text = text.replaceAll("\\.", ". ").replaceAll("\\.\\.", "\\.").replaceAll("\\. \\.", "\\.").replaceAll(":", ";").replaceAll(" ;", ";").replaceAll("  ", " ");
+        
         String line = term + gui.sep.getText() + " " + text + "\n";
 
         if (gui.defs.getText().equals("Searching for definitions...")) {

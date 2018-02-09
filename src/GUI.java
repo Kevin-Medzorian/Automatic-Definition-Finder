@@ -1,9 +1,11 @@
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -32,6 +34,7 @@ public final class GUI extends JFrame {
     JCheckBox replace;
     JTextField sep;
     JComboBox defType;
+    JLabel loading;
     GUI thisObject;
 
     String definitionList = "";
@@ -50,17 +53,21 @@ public final class GUI extends JFrame {
         setLayout(new BorderLayout());
         tp = new JTabbedPane();
 
-        JPanel bottomRow = new JPanel(new FlowLayout());
+        JPanel bottomRow = new JPanel(new BorderLayout());
+        JPanel west = new JPanel(new FlowLayout());
+        JPanel east = new JPanel(new FlowLayout());
+
+        loading = new JLabel(new ImageIcon(new javax.swing.ImageIcon(getClass().getResource("/images/loader.gif")).getImage().getScaledInstance(20, 20, Image.SCALE_DEFAULT)));
 
         JButton search = new JButton("Find Definitions");
 
         search.addActionListener((ActionEvent e) -> {
             defs.setText("Searching for definitions...");
-            
+
             if (tp.getSelectedIndex() == 1) {
                 defs.update(defs.getGraphics());
             }
-            
+
             //Finds definitions in a new thread
             Thread findDefinitions = new Thread(new ThreadedConnection((String) defType.getSelectedItem(), terms.getText().split("\n"), thisObject));
             findDefinitions.start();
@@ -72,9 +79,12 @@ public final class GUI extends JFrame {
         defType.addItem("Merriam-Webster");
         defType.addItem("Google");
 
-        bottomRow.add(defType);
-        bottomRow.add(Box.createHorizontalStrut(440));
-        bottomRow.add(search);
+        west.add(defType);
+        east.add(loading);
+        east.add(search);
+        
+        bottomRow.add(west, BorderLayout.WEST);
+        bottomRow.add(east, BorderLayout.EAST);
 
         add(tp, BorderLayout.CENTER);
         add(bottomRow, BorderLayout.SOUTH);
@@ -85,6 +95,8 @@ public final class GUI extends JFrame {
         setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/images/iconTransparent.png")));
 
         setVisible(true);
+
+        loading.setVisible(false);
     }
 
     public void CheckSettings() {
@@ -143,7 +155,7 @@ public final class GUI extends JFrame {
 
         tp.addTab("Term List ", termPanel);
 
-        terms = new JTextArea(20, 90);
+        terms = new JTextArea(20, 100);
         JScrollPane spt = new JScrollPane(terms);
 
         JLabel infoLbl = new JLabel("Enter one-word English terms below, separated by a single line.");
@@ -181,7 +193,7 @@ public final class GUI extends JFrame {
 
         sep.setColumns(3);
 
-        defs = new JTextArea(20, 90);
+        defs = new JTextArea(20, 100);
         JScrollPane sp = new JScrollPane(defs);
         defs.setEditable(false);
 
