@@ -3,8 +3,6 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -26,7 +24,7 @@ import javax.swing.text.DocumentFilter;
 /**
  * @author Kevin
  */
-public class GUI extends JFrame {
+public final class GUI extends JFrame {
 
     JTextArea terms;
     JTextArea defs;
@@ -34,11 +32,12 @@ public class GUI extends JFrame {
     JCheckBox replace;
     JTextField sep;
     JComboBox defType;
+    GUI thisObject;
 
     String definitionList = "";
 
     public GUI() {
-
+        thisObject = this;
         try {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
         } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
@@ -55,42 +54,16 @@ public class GUI extends JFrame {
 
         JButton search = new JButton("Find Definitions");
 
-        search.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                defs.setText("Searching for definitions...");
-
-                if (tp.getSelectedIndex() == 1) {
-                    defs.update(defs.getGraphics());
-                }
-
-                for (String term : terms.getText().split("\n")) {
-                    if (term.replaceAll("[^A-Za-z]", "").trim().length() == term.trim().length() && term.trim().length() > 1) {
-                        try {
-                            String line = term + sep.getText() + " " + AutoDefinitionFinder.GetDef(term, (String) defType.getSelectedItem()) + "\n";
-
-                            if (defs.getText().equals("Searching for definitions...")) {
-                                defs.setText("");
-                            }
-
-                            defs.append(line);
-
-                            if (tp.getSelectedIndex() == 1) {
-                                defs.update(defs.getGraphics());
-                            }
-
-                        } catch (IOException ex) {
-                            System.out.println(ex.toString());
-                        }
-
-                    } else {
-                        defs.append(term + sep.getText() + " Invalid term text format. Make sure it is only Alphabetic and one-word." + "\n");
-                    }
-                }
-
-                definitionList = defs.getText();
-
-                CheckSettings();
+        search.addActionListener((ActionEvent e) -> {
+            defs.setText("Searching for definitions...");
+            
+            if (tp.getSelectedIndex() == 1) {
+                defs.update(defs.getGraphics());
             }
+            
+            //Finds definitions in a new thread
+            Thread findDefinitions = new Thread(new ThreadedConnection((String) defType.getSelectedItem(), terms.getText().split("\n"), thisObject));
+            findDefinitions.start();
         });
 
         defType = new JComboBox();
@@ -195,19 +168,15 @@ public class GUI extends JFrame {
         JLabel sepText = new JLabel("Separating text: ");
         sep = new JTextField(":");
 
-        sep.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                CheckSettings();
-            }
+        sep.addActionListener((ActionEvent e) -> {
+            CheckSettings();
         });
 
         JLabel repText = new JLabel("Let term be in definition:");
         replace = new JCheckBox();
 
-        replace.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                CheckSettings();
-            }
+        replace.addActionListener((ActionEvent e) -> {
+            CheckSettings();
         });
 
         sep.setColumns(3);
