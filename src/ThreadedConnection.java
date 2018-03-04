@@ -82,12 +82,13 @@ public class ThreadedConnection implements Runnable {
         text = text.replaceAll("\\.", ". ").replaceAll("\\.\\.", "\\.").replaceAll("\\. \\.", "\\.").replaceAll(":", ";").replaceAll(" ;", ";").replaceAll("  ", " ");
         
         String line = term + gui.sep.getText() + " " + text + "\n";
-
-        if (gui.defs.getText().equals("Searching for definitions...")) {
-            gui.defs.setText("");
-        }
-
+        
+        gui.defs.setText(gui.defs.getText().replaceAll("Searching for definitions...", ""));
+        
         gui.defs.append(line);
+        
+        if((Object)term != terms[terms.length-1])
+            gui.defs.append("Searching for definitions...");
 
         if (gui.tp.getSelectedIndex() == 1) {
             gui.defs.update(gui.defs.getGraphics());
