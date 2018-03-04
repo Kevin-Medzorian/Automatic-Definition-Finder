@@ -4,6 +4,7 @@ import java.awt.FlowLayout;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.util.Scanner;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -41,8 +42,14 @@ public final class GUI extends JFrame {
 
     public GUI() {
         thisObject = this;
+
+        String os = new Scanner(System.getProperty("os.name")).next().toLowerCase();
+         
         try {
-            UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+            if (os.equals("windows")) 
+                UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+            else if(os.equals("linux"))
+                UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");            
         } catch (UnsupportedLookAndFeelException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
         }
 
@@ -82,7 +89,7 @@ public final class GUI extends JFrame {
         west.add(defType);
         east.add(loading);
         east.add(search);
-        
+
         bottomRow.add(west, BorderLayout.WEST);
         bottomRow.add(east, BorderLayout.EAST);
 
